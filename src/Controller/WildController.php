@@ -2,12 +2,16 @@
 
 namespace App\Controller;
 
-use App\Entity\Category;
+use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
+use App\Entity\Category;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+
 
 
 class WildController extends AbstractController
@@ -26,11 +30,13 @@ class WildController extends AbstractController
                 'No program found in program\'s table.'
             );
         }
-
-        return $this->render(
-            'wild/index.html.twig',
-            ['programs' => $programs]
-        );
+        
+        
+return $this->render('wild/index.html.twig', [
+                'programs' => $programs,
+                
+            ]
+);
     }
     /**
      *
@@ -87,7 +93,8 @@ class WildController extends AbstractController
 
     }
     /**
-     * @Route("wild/program/{programName}",requirements={"programName:<^[a-z0-9-]+$>"} , name="show_program")
+     *@Route("wild/program/{programName}",requirements={"programName:<^[a-z0-9-]+$>"} , name="show_program")
+     *@param string $programName   
      * @return Response
      */
     public function showByProgram(?string $programName): Response
@@ -115,7 +122,8 @@ class WildController extends AbstractController
     }
 
     /**
-     * @Route("wild/program/season/{id}", name="show_season").
+     *@Route("wild/program/season/{id}", name="show_season").
+     *@param int $id
      */
     public function showBySeason(?int $id): Response
     {
@@ -137,6 +145,25 @@ class WildController extends AbstractController
         'program'=>$program,
         'episode'=>$episode]);
         
+    }
+
+    /**
+     * @Route("wild/program/episode/{id}", name="show_episode").
+     * @param Episode $episode
+     */
+    public function showEpisode(Episode $episode)
+    {
+        if (!$episode)
+        {
+            throw $this->createNotFoundException("Aucun épisode n'a été trouvé");
+        }
+        $season = $episode->getSeason();
+        $program = $season->getProgram();
+
+        return $this->render('wild/episode.html.twig',
+         ['season'=>$season,
+         'program' => $program,
+         'episode'=>$episode]);
     }
 
 
